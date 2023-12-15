@@ -243,35 +243,23 @@ def create_anndata_subset(**kwargs):
         num_columns = file["var"][file["var"].attrs["_index"]].shape[0]
         
         
-        # Extracting all indices and data for specified rows
-        #selected_rows_data = []
-        #selected_rows_indices = []
-        #selected_rows_indptr = [0]
-        #for row_idx in rows_to_load:
-        #    start_idx = indptr_dset[row_idx]
-        #    end_idx = indptr_dset[row_idx + 1]
-        #    selected_rows_data.extend(data_dset[start_idx:end_idx])
-        #    selected_rows_indices.extend(indices_dset[start_idx:end_idx])
-        #    selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
-        #
-        #
-        #subset_matrix = csr_matrix((np.array(selected_rows_data), np.array(selected_rows_indices), np.array(selected_rows_indptr)),
-        #                           shape=(len(rows_to_load), file["var"][file["var"].attrs["_index"]].shape[0]),
-        #                           dtype=file["X"]["data"].dtype)
+        # Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
+        selected_rows_data = []
+        selected_rows_indices = []
+        selected_rows_indptr = [0]
         
-        # Initialize NumPy arrays
-        selected_rows_data = np.empty(0, dtype=data_dset.dtype)
-        selected_rows_indices = np.empty(0, dtype=indices_dset.dtype)
-        selected_rows_indptr = np.zeros(len(rows_to_load) + 1, dtype=indptr_dset.dtype)
-        
-        # Populate NumPy arrays directly during the loop
-        for i, row_idx in enumerate(rows_to_load):
+        # Cycle through the rows of interest
+        for row_idx in rows_to_load:
             start_idx = indptr_dset[row_idx]
             end_idx = indptr_dset[row_idx + 1]
-            
-            selected_rows_data = np.concatenate((selected_rows_data, data_dset[start_idx:end_idx]))
-            selected_rows_indices = np.concatenate((selected_rows_indices, indices_dset[start_idx:end_idx]))
-            selected_rows_indptr[i + 1] = selected_rows_indptr[i] + (end_idx - start_idx)
+            selected_rows_data.extend(data_dset[start_idx:end_idx])
+            selected_rows_indices.extend(indices_dset[start_idx:end_idx])
+            selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
+        
+        # Convert lists to NumPy arrays
+        selected_rows_data = np.array(selected_rows_data)
+        selected_rows_indices = np.array(selected_rows_indices)
+        selected_rows_indptr = np.array(selected_rows_indptr)
         
         # Create csr_matrix directly from NumPy arrays
         subset_matrix = csr_matrix(
@@ -279,13 +267,6 @@ def create_anndata_subset(**kwargs):
             shape=(len(rows_to_load), num_columns),
             dtype=file["X"]["data"].dtype
         )
-        
-        
-        
-        
-        
-        
-        
         
         if filter_column_var:
                 var = pd.DataFrame(read_elem(file['var'][filter_column_var]))
@@ -296,24 +277,71 @@ def create_anndata_subset(**kwargs):
             if not filter_layers:
                 layers = {}
                 for x in file["layers"].keys():
-                    all_indices = np.hstack(file["layers"][x]["indices"][file["layers"][x]["indptr"][rows_to_load]:file["layers"][x]["indptr"][rows_to_load + 1]] for rows_to_load in rows_to_load)
-                    all_data = np.hstack(file["layers"][x]["data"][file["layers"][x]["indptr"][row]:file["layers"][x]["indptr"][row + 1]] for row in rows_to_load)
-                    indptr = np.cumsum([file["layers"][x]["indptr"][row + 1] - file["layers"][x]["indptr"][row] for row in rows_to_load])
-                    indptr = np.concatenate([[0], indptr])
-                    layers[x] = csr_matrix((all_data, all_indices, indptr),
-                           shape=(len(rows_to_load), file["var"][file["var"].attrs["_index"]].shape[0]),
-                           dtype=file["layers"][x]["data"].dtype)
+                    
+                    # Assign variables to query
+                    data_dset = file['layers'][x]['data']
+                    indices_dset = file['layers'][x]['indices']
+                    indptr_dset = file['layers'][x]['indptr']
+                    
+                    # Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
+                    selected_rows_data = []
+                    selected_rows_indices = []
+                    selected_rows_indptr = [0]
+                    
+                    # Cycle through the rows of interest
+                    for row_idx in rows_to_load:
+                        start_idx = indptr_dset[row_idx]
+                        end_idx = indptr_dset[row_idx + 1]
+                        selected_rows_data.extend(data_dset[start_idx:end_idx])
+                        selected_rows_indices.extend(indices_dset[start_idx:end_idx])
+                        selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
+                    
+                    # Convert lists to NumPy arrays
+                    selected_rows_data = np.array(selected_rows_data)
+                    selected_rows_indices = np.array(selected_rows_indices)
+                    selected_rows_indptr = np.array(selected_rows_indptr)
+                   
+                    # Create csr_matrix directly from NumPy arrays
+                    layers[x] = csr_matrix(
+                        (selected_rows_data, selected_rows_indices, selected_rows_indptr),
+                        shape=(len(rows_to_load), num_columns),
+                        dtype=file["layers"][x]["data"].dtype
+                    )
                     
             else:
                 layers = {}
                 for x in (value for value in filter_layers if value in file["layers"].keys()):
-                    all_indices = np.hstack(file["layers"][x]["indices"][file["layers"][x]["indptr"][rows_to_load]:file["layers"][x]["indptr"][rows_to_load + 1]] for rows_to_load in rows_to_load)
-                    all_data = np.hstack(file["layers"][x]["data"][file["layers"][x]["indptr"][row]:file["layers"][x]["indptr"][row + 1]] for row in rows_to_load)
-                    indptr = np.cumsum([file["layers"][x]["indptr"][row + 1] - file["layers"][x]["indptr"][row] for row in rows_to_load])
-                    indptr = np.concatenate([[0], indptr])
-                    layers[x] = csr_matrix((all_data, all_indices, indptr),
-                           shape=(len(rows_to_load), file["var"][file["var"].attrs["_index"]].shape[0]),
-                           dtype=file["layers"][x]["data"].dtype)
+                    
+                    # Assign variables to query
+                    data_dset = file['layers'][x]['data']
+                    indices_dset = file['layers'][x]['indices']
+                    indptr_dset = file['layers'][x]['indptr']
+                    
+                    # Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
+                    selected_rows_data = []
+                    selected_rows_indices = []
+                    selected_rows_indptr = [0]
+                    
+                    # Cycle through the rows of interest
+                    for row_idx in rows_to_load:
+                        start_idx = indptr_dset[row_idx]
+                        end_idx = indptr_dset[row_idx + 1]
+                        selected_rows_data.extend(data_dset[start_idx:end_idx])
+                        selected_rows_indices.extend(indices_dset[start_idx:end_idx])
+                        selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
+                    
+                    # Convert lists to NumPy arrays
+                    selected_rows_data = np.array(selected_rows_data)
+                    selected_rows_indices = np.array(selected_rows_indices)
+                    selected_rows_indptr = np.array(selected_rows_indptr)
+                   
+                    # Create csr_matrix directly from NumPy arrays
+                    layers[x] = csr_matrix(
+                        (selected_rows_data, selected_rows_indices, selected_rows_indptr),
+                        shape=(len(rows_to_load), num_columns),
+                        dtype=file["layers"][x]["data"].dtype
+                    )
+                    
         else:
             layers = None
             
