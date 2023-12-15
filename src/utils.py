@@ -231,27 +231,60 @@ def create_anndata_subset(**kwargs):
         rows_to_load = out_df['Original_index_position'].values
         
         
-        # Extracting all indices and data for specified rows in one go
+        # Set warning parameters
         warnings.filterwarnings("ignore", category=FutureWarning)
+        
+        # Assign variables to query
         data_dset = file['X']['data']
         indices_dset = file['X']['indices']
         indptr_dset = file['X']['indptr']
+        
         # Determine the number of columns from the maximum value in the indices array
         num_columns = file["var"][file["var"].attrs["_index"]].shape[0]
-        selected_rows_data = []
-        selected_rows_indices = []
-        selected_rows_indptr = [0]
-        for row_idx in rows_to_load:
+        
+        
+        # Extracting all indices and data for specified rows
+        #selected_rows_data = []
+        #selected_rows_indices = []
+        #selected_rows_indptr = [0]
+        #for row_idx in rows_to_load:
+        #    start_idx = indptr_dset[row_idx]
+        #    end_idx = indptr_dset[row_idx + 1]
+        #    selected_rows_data.extend(data_dset[start_idx:end_idx])
+        #    selected_rows_indices.extend(indices_dset[start_idx:end_idx])
+        #    selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
+        #
+        #
+        #subset_matrix = csr_matrix((np.array(selected_rows_data), np.array(selected_rows_indices), np.array(selected_rows_indptr)),
+        #                           shape=(len(rows_to_load), file["var"][file["var"].attrs["_index"]].shape[0]),
+        #                           dtype=file["X"]["data"].dtype)
+        
+        # Initialize NumPy arrays
+        selected_rows_data = np.empty(0, dtype=data_dset.dtype)
+        selected_rows_indices = np.empty(0, dtype=indices_dset.dtype)
+        selected_rows_indptr = np.zeros(len(rows_to_load) + 1, dtype=indptr_dset.dtype)
+        
+        # Populate NumPy arrays directly during the loop
+        for i, row_idx in enumerate(rows_to_load):
             start_idx = indptr_dset[row_idx]
             end_idx = indptr_dset[row_idx + 1]
-            selected_rows_data.extend(data_dset[start_idx:end_idx])
-            selected_rows_indices.extend(indices_dset[start_idx:end_idx])
-            selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
+            
+            selected_rows_data = np.concatenate((selected_rows_data, data_dset[start_idx:end_idx]))
+            selected_rows_indices = np.concatenate((selected_rows_indices, indices_dset[start_idx:end_idx]))
+            selected_rows_indptr[i + 1] = selected_rows_indptr[i] + (end_idx - start_idx)
+        
+        # Create csr_matrix directly from NumPy arrays
+        subset_matrix = csr_matrix(
+            (selected_rows_data, selected_rows_indices, selected_rows_indptr),
+            shape=(len(rows_to_load), num_columns),
+            dtype=file["X"]["data"].dtype
+        )
         
         
-        subset_matrix = csr_matrix((np.array(all_data), np.array(all_indices), np.array(selected_rows_indptr)),
-                                   shape=(len(rows_to_load), file["var"][file["var"].attrs["_index"]].shape[0]),
-                                   dtype=file["X"]["data"].dtype)
+        
+        
+        
+        
         
         
         if filter_column_var:
