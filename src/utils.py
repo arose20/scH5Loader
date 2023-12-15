@@ -8,7 +8,7 @@ from scipy.sparse import csr_matrix
 from pprint import pprint
 import warnings
 import time
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 
 
 
@@ -186,6 +186,7 @@ def grab_row_values(
     data_dset,
     indices_dset,
     indptr_dset,
+    description: str,
     ):
     
     # Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
@@ -193,8 +194,8 @@ def grab_row_values(
     selected_rows_indices = []
     selected_rows_indptr = [0]
     
-    # Cycle through the rows of interest
-    for row_idx in rows_to_load:
+    # Use tqdm for progress bar to show progression of assigning variables
+    for row_idx in tqdm(rows_to_load, desc=f"Processing Rows for {description}", unit="row", position=0, leave=True):
         start_idx = indptr_dset[row_idx]
         end_idx = indptr_dset[row_idx + 1]
         selected_rows_data.extend(data_dset[start_idx:end_idx])
@@ -271,27 +272,7 @@ def create_anndata_subset(**kwargs):
         # Determine the number of columns from the maximum value in the indices array
         num_columns = file["var"][file["var"].attrs["_index"]].shape[0]
         
-        
-        ## Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
-        #selected_rows_data = []
-        #selected_rows_indices = []
-        #selected_rows_indptr = [0]
-        #
-        ## Cycle through the rows of interest
-        #for row_idx in rows_to_load:
-        #    start_idx = indptr_dset[row_idx]
-        #    end_idx = indptr_dset[row_idx + 1]
-        #    selected_rows_data.extend(data_dset[start_idx:end_idx])
-        #    selected_rows_indices.extend(indices_dset[start_idx:end_idx])
-        #    selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
-        #
-        ## Convert lists to NumPy arrays
-        #selected_rows_data = np.array(selected_rows_data)
-        #selected_rows_indices = np.array(selected_rows_indices)
-        #selected_rows_indptr = np.array(selected_rows_indptr)
-        
-        
-        selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset)
+        selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset, 'main counts data')
         
         
         # Create csr_matrix directly from NumPy arrays
@@ -315,28 +296,10 @@ def create_anndata_subset(**kwargs):
                     data_dset = file['layers'][x]['data']
                     indices_dset = file['layers'][x]['indices']
                     indptr_dset = file['layers'][x]['indptr']
-                    
-                    # Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
-                    #selected_rows_data = []
-                    #selected_rows_indices = []
-                    #selected_rows_indptr = [0]
-                    
-                    # Cycle through the rows of interest
-                    #for row_idx in rows_to_load:
-                    #    start_idx = indptr_dset[row_idx]
-                    #    end_idx = indptr_dset[row_idx + 1]
-                    #    selected_rows_data.extend(data_dset[start_idx:end_idx])
-                    #    selected_rows_indices.extend(indices_dset[start_idx:end_idx])
-                    #    selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
-                    
-                    # Convert lists to NumPy arrays
-                    #selected_rows_data = np.array(selected_rows_data)
-                    #selected_rows_indices = np.array(selected_rows_indices)
-                    #selected_rows_indptr = np.array(selected_rows_indptr)
                    
+                    name = f'layer {x} data'
                 
-                
-                    selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset)
+                    selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset, name)
                 
                     # Create csr_matrix directly from NumPy arrays
                     layers[x] = csr_matrix(
@@ -354,25 +317,9 @@ def create_anndata_subset(**kwargs):
                     indices_dset = file['layers'][x]['indices']
                     indptr_dset = file['layers'][x]['indptr']
                     
-                    # Initalise empty lists - lists are dynamic in size so adding to a list then converting to a numpy array can be faster then initialising the entire size of the required numpy array
-                    #selected_rows_data = []
-                    #selected_rows_indices = []
-                    #selected_rows_indptr = [0]
-                    
-                    # Cycle through the rows of interest
-                    #for row_idx in rows_to_load:
-                    #    start_idx = indptr_dset[row_idx]
-                    #    end_idx = indptr_dset[row_idx + 1]
-                    #    selected_rows_data.extend(data_dset[start_idx:end_idx])
-                    #    selected_rows_indices.extend(indices_dset[start_idx:end_idx])
-                    #    selected_rows_indptr.append(selected_rows_indptr[-1] + (end_idx - start_idx))
-                    
-                    # Convert lists to NumPy arrays
-                    #selected_rows_data = np.array(selected_rows_data)
-                    #selected_rows_indices = np.array(selected_rows_indices)
-                    #selected_rows_indptr = np.array(selected_rows_indptr)
+                    name = f'layer {x} data'
                    
-                    selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset)
+                    selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset, name)
                 
                 
                     # Create csr_matrix directly from NumPy arrays
