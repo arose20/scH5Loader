@@ -169,6 +169,7 @@ def create_obs_subset(
         out_df = pd.concat(cols.values(), keys=None, axis=1)
         original_col_order = ['Original_index_position'] + list(file['obs'].attrs['column-order']) 
         out_df = out_df.filter(items=original_col_order)
+        out_df = out_df.loc[:, ~out_df.columns.duplicated()]
     
     print(f"\033[1mDataFrame output for only columns of interest for cells selected by filtering {filter_column}:\033[0m\n")
     print("Values selected to keep:")
