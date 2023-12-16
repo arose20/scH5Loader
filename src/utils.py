@@ -179,7 +179,82 @@ def create_obs_subset(
     
     return out_df
     
+
+    
+    
+    
+def check_values_for_key(input_settings, file, filter_key, filter_values):
+    
+    if input_settings[filter_key]:
+
+        # Check for each value
+        not_present_values = [value for value in input_settings[filter_values] if value not in file[filter_key.split('_')[1]].keys()]
+
+        if not_present_values:
+            raise ValueError(f"Values not present in {filter_key.split('_')[1]}:", not_present_values)
+
+
+def check_input_dictionary(input_settings, file):
+    # Check all values have been passed in correctly
+    required_keys = [
+        'data_dir',
+        'filter_column_obs',
+        'filter_values_obs',
+        'additional_cols_keep_obs',
+        'filter_column_var',
+        'keep_layers',
+        'filter_layers',
+        'keep_obsm',
+        'filter_obsm',
+        'keep_obsp',
+        'filter_obsp',
+        'keep_varm',
+        'filter_varm',
+        'keep_varp',
+        'filter_varp',
+        'keep_uns',
+        'filter_uns',
+    ]
+    
+    missing_keys = [key for key in required_keys if key not in input_settings]
+
+    if missing_keys:
+        raise ValueError(f"Missing required keys: {', '.join(missing_keys)}")
+
+    # Check for values not present in file['obs'].keys()
+    obs_cols = [input_settings['filter_column_obs']] + input_settings['additional_cols_keep_obs']
+    not_present_values = [value for value in obs_cols if value not in file['obs'].keys()]
+
+    if not_present_values:
+        raise ValueError("Values not present in obs columns:", not_present_values)
         
+    # Check for values not present in file['var'].keys()   
+    not_present_values = [value for value in input_settings['filter_column_var'] if value not in file['var'].keys()]
+
+    if not_present_values:
+        raise ValueError("Values not present in var columns:", not_present_values)
+           
+        
+    # Check layers
+    check_values_for_key(input_settings, file, 'keep_layers', 'filter_layers')
+       
+    # Check obsm
+    check_values_for_key(input_settings, file, 'keep_obsm', 'filter_obsm')
+    
+    # Check obsp
+    check_values_for_key(input_settings, file, 'keep_obsp', 'filter_obsp')
+    
+    # Check varm
+    check_values_for_key(input_settings, file, 'keep_varm', 'filter_varm')
+    
+    # Check varp
+    check_values_for_key(input_settings, file, 'keep_varp', 'filter_varp')
+    
+    # Check uns
+    check_values_for_key(input_settings, file, 'keep_uns', 'filter_uns')
+    
+    
+    
 def grab_row_values(
     
     rows_to_load: list,
@@ -208,48 +283,53 @@ def grab_row_values(
     selected_rows_indptr = np.array(selected_rows_indptr)
     
     return selected_rows_data, selected_rows_indices, selected_rows_indptr
+
+
+def create_anndata_subset(input_settings):#, **kwargs): 
+    
+    # unpack all values
+    #for key, value in kwargs.items():
+    #    globals()[key] = value
+    #kwargs.update(locals())
+    
+    with h5py.File(input_settings['data_dir'], 'r') as file:
         
-    
-def create_anndata_subset(**kwargs): 
-    
-    for key, value in kwargs.items():
-        globals()[key] = value
-    kwargs.update(locals())
-    
-    with h5py.File(data_dir, 'r') as file:
+        # Check input dictionary
+        check_input_dictionary(input_settings, file)
+        
         # Get the index from the 'obs' dataset attributes
         original_index = pd.DataFrame(index=np.vectorize(lambda x: x.decode('utf-8'))(np.array(file["obs"]["_index"], dtype=object)))
         original_index['Original_index_position'] = np.arange(len(original_index))
         
         # Establish the rows to keep
         cols = {}
-        col_data = pd.DataFrame(read_elem(file['obs'][filter_column_obs]))
+        col_data = pd.DataFrame(read_elem(file['obs'][input_settings['filter_column_obs']]))
         
         # Check that all values in filter_values are in filter_column
         #if not set(filter_values_obs).issubset(set(col_data.iloc[:, 0])):
         
         # Filter the DataFrame and check for missing values in one line
-        col_data = col_data[col_data.iloc[:, 0].isin(filter_values_obs)]
+        col_data = col_data[col_data.iloc[:, 0].isin(input_settings['filter_values_obs'])]
         
         # Check if all values in filter_values_obs are present
-        if not set(filter_values_obs).issubset(set(col_data.iloc[:, 0])):
+        if not set(input_settings['filter_values_obs']).issubset(set(col_data.iloc[:, 0])):
             raise ValueError("Not all values in filter_values_obs are present in filter_column_obs.")
 
         
         
-        col_data.rename(columns={0:filter_column_obs}, inplace=True)
+        col_data.rename(columns={0:input_settings['filter_column_obs']}, inplace=True)
         col_data.index = original_index.iloc[col_data.index].index
         col_data.insert(0, 'Original_index_position', original_index.loc[original_index.index.isin(col_data.index), 'Original_index_position'])
         
         #col_data['orig_index_position'] = original_index.loc[original_index.index.isin(col_data.index), 'orig_index_position']
-        cols[filter_column_obs] = col_data
+        cols[input_settings['filter_column_obs']] = col_data
         
         # Get the rest of the columns of interest
-        for col in additional_cols_keep_obs:
+        for col in input_settings['additional_cols_keep_obs']:
             col_data = pd.DataFrame(read_elem(file['obs'][col]))
             col_data.rename(columns={0:col}, inplace=True)
             col_data.index = original_index.index
-            col_data = col_data[col_data.index.isin(cols[filter_column_obs].index)]
+            col_data = col_data[col_data.index.isin(cols[input_settings['filter_column_obs']].index)]
             cols[col] = col_data
             
         out_df = pd.concat(cols.values(), keys=None, axis=1)
@@ -274,21 +354,22 @@ def create_anndata_subset(**kwargs):
         
         selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset, 'main counts data')
         
-        
         # Create csr_matrix directly from NumPy arrays
+        print('Constructing data into csr_matrix format:  \U0001F527', flush=True)
         subset_matrix = csr_matrix(
             (selected_rows_data, selected_rows_indices, selected_rows_indptr),
             shape=(len(rows_to_load), num_columns),
             dtype=file["X"]["data"].dtype
         )
+        print('Construction complete \u2705')
         
-        if filter_column_var:
-                var = pd.DataFrame(read_elem(file['var'][filter_column_var]))
+        if input_settings['filter_column_var']:
+                var = pd.DataFrame(read_elem(file['var'][input_settings['filter_column_var']]))
         else:
             var = pd.DataFrame(read_elem(file['var']))
 
-        if keep_layers:
-            if not filter_layers:
+        if input_settings['keep_layers']:
+            if not input_settings['filter_layers']:
                 layers = {}
                 for x in file["layers"].keys():
                     
@@ -302,11 +383,13 @@ def create_anndata_subset(**kwargs):
                     selected_rows_data, selected_rows_indices, selected_rows_indptr = grab_row_values(rows_to_load,data_dset,indices_dset,indptr_dset, name)
                 
                     # Create csr_matrix directly from NumPy arrays
+                    print('Constructing data into csr_matrix format:  \U0001F527', flush=True)
                     layers[x] = csr_matrix(
                         (selected_rows_data, selected_rows_indices, selected_rows_indptr),
                         shape=(len(rows_to_load), num_columns),
                         dtype=file["layers"][x]["data"].dtype
                     )
+                    print('Construction complete \u2705')
                     
             else:
                 layers = {}
@@ -323,33 +406,35 @@ def create_anndata_subset(**kwargs):
                 
                 
                     # Create csr_matrix directly from NumPy arrays
+                    print('Constructing data into csr_matrix format:  \U0001F527', flush=True)
                     layers[x] = csr_matrix(
                         (selected_rows_data, selected_rows_indices, selected_rows_indptr),
                         shape=(len(rows_to_load), num_columns),
                         dtype=file["layers"][x]["data"].dtype
                     )
+                    print('Construction complete \u2705')
                     
         else:
             layers = None
             
-        if keep_obsm:
-            if not filter_obsm:
+        if input_settings['keep_obsm']:
+            if not input_settings['filter_obsm']:
                 obsm = {x: anndata._io.h5ad.read_elem(file["obsm"][x])[rows_to_load] for x in file["obsm"].keys()}
             else:
                 obsm = {x: anndata._io.h5ad.read_elem(file["obsm"][x])[rows_to_load] for x in filter_obsm if x in file["obsm"].keys()}
         else:
             obsm = None
 
-        if keep_obsp:
-            if not filter_obsp:
+        if input_settings['keep_obsp']:
+            if not input_settings['filter_obsp']:
                 obsp = {x: anndata._io.h5ad.read_elem(file["obsp"][x])[rows_to_load][:, rows_to_load]  for x in file["obsp"].keys()}
             else:
                 obsp = {x: anndata._io.h5ad.read_elem(file["obsp"][x])[rows_to_load][:, rows_to_load] for x in filter_obsp if x in file["obsp"].keys()}
         else:
             obsp = None
 
-        if keep_varm:
-            if not filter_varm:
+        if input_settings['keep_varm']:
+            if not input_settings['filter_varm']:
                 varm = anndata._io.h5ad.read_elem(file["varm"])
             else:
                 varm = {x: anndata._io.h5ad.read_elem(file["varm"][x]) for x in filter_varm if x in file["varm"].keys()}
@@ -357,8 +442,8 @@ def create_anndata_subset(**kwargs):
             varm = None
 
 
-        if keep_varp:
-            if not filter_varp:
+        if input_settings['keep_varp']:
+            if not input_settings['filter_varp']:
                 varp = anndata._io.h5ad.read_elem(file["varp"])
             else:
                 varp = {x: anndata._io.h5ad.read_elem(file["varp"][x]) for x in filter_varp if x in file["varp"].keys()}
@@ -366,8 +451,8 @@ def create_anndata_subset(**kwargs):
             varp = None
 
 
-        if keep_uns:
-            if not filter_uns:
+        if input_settings['keep_uns']:
+            if not input_settings['filter_uns']:
                 uns = anndata._io.h5ad.read_elem(file["uns"])
             else:
                 uns = {x: anndata._io.h5ad.read_elem(file["uns"][x]) for x in filter_uns if x in file["uns"].keys()}
@@ -387,6 +472,8 @@ def create_anndata_subset(**kwargs):
         )
         warnings.filterwarnings("default")
     
+    print('')
+    print('')
     print(f"\033[1mSubset anndata object generated successfully\033[0m\n")
     print('\033[1m' + 'Anndata whole preview:' + '\033[0m')
     display(adata)
@@ -405,4 +492,4 @@ def create_anndata_subset(**kwargs):
     print('')
     
     return adata
-    
+
