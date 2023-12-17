@@ -1,0 +1,7 @@
+numpy
+pandas
+scanpy
+anndata
+h5py
+scipy
+tqdm
