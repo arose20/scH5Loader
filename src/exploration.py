@@ -115,4 +115,4 @@ def investigate_obs_columns_unique_contents(
     if output_dataframe_name in locals():
         print(f"Variable '{output_dataframe_name}' already exists. Overwriting.")
         
-    locals()[output_dataframe_name] = df
+    globals()[output_dataframe_name] = df
