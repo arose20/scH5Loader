@@ -1,10 +1,12 @@
-# H5py_anndata_checker
+# scarf_tools
+
+single cell anndata reading file tools :scarf:
 ***
-Use h5py to explore without loading in memory and then load in a slice to save on total memory consumption
+Use h5py to explore siingle cell data stored in an anndata format without loading in memory and then load in only the data you are interested in to save on total memory consumption.
 
-This can be useful for files which are typically loaded into anndata formats such as .h5ad files for single cell work in python using scanpy 
+This can be useful for large single cell anndata files where you only want a subsec tion of the data and don't have enough memory to load all the data in and slice.
 
-This work goal is to help the user only load the data of interest instead of all the data.
+This goal is to help the user only load the data of interest instead of all the data.
 
 ***
 ## Use case example:
