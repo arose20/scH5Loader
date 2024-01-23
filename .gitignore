@@ -1,3 +1,14 @@
-.__pycache__
-.ipynb_checkpoint
+# Ignore anything with "checkpoint"
+*checkpoint*
+
+# Ignore anything with "egg-info"
+.egg-info
+
+# Ignore py cache
+__pycache__
+
+# Ignore "variables.py"
 variables.py
+
+# Ignore anything with ".h5ad"
+*.h5ad
