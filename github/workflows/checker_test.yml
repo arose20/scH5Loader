@@ -1,0 +1,45 @@
+# name of the workflow
+name: scarftools tests
+
+# when the workflow should be used
+on:
+    # specify only to run on pull requests
+    pull_request:
+        # specifiy branches this should affect
+        branches:
+            - main
+
+# Outline the jobs to be performed within this workflow
+jobs:
+    # This job is only going to run a single job called test
+    test:
+        # Specify the os system(s) to run the job on
+        runs-on: [ubuntu-20.04]
+        # Sepcify default parameters
+        defaults:
+            # Specify where this code should run from
+            run:
+                working-directory: ./src/
+        # Specify the stratergy to take        
+        stratergy:
+            matrix:
+                python-version: [3.6, 3.8]
+        # Specify the environment to use         
+        env:
+            MODE: "dev"
+        # Outpline the steps which the job will perform    
+        steps:
+            - uses: actions/checkout@v3
+            
+            - name: Set up Python
+                uses: actions/setup-python@v4
+                with:
+                    python-version: ${{matrix.python-version}}
+                    
+            - name: Install dependencies
+                run: |
+                    python -m pip install --upgrade pip
+                    pip install -r ../requiremnets.txt
+            
+            - name: Test Code
+                run: python ./main_test.py
