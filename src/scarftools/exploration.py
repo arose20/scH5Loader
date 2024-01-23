@@ -2,6 +2,10 @@ import pandas as pd
 import h5py
 from pprint import pprint
 
+from IPython.display import display
+
+from typing import List, Dict, Any
+
 
 def generate_summary_report(data_dir):
     with h5py.File(data_dir, 'r') as file:
@@ -33,7 +37,7 @@ def generate_summary_report(data_dir):
                         layer_dict[k] = {'group_keys': sub_group_keys, 'group_types': sub_group_types}
                         layer_dict[k]['Cell_num:'] = file[key][k]['indptr'].shape[0] - 1
                         
-                    summary_report[key]['sublayer_info'] = layer_dict
+                    summary_report[key]['sublayer_info'] = layer_dict # type: ignore
             
             elif isinstance(group, h5py.Dataset):
                 # For datasets, get shape and dtype
@@ -85,11 +89,11 @@ def investigate_obs_columns_unique_contents(
     data_dir : str,
     output_dataframe_name : str,
     dataframe : str,
-    columns : list,
+    columns : List[str],
     ):
     
     # Initialize an empty dictionary to store decoded categories
-    decoded_data = {col: [] for col in columns}
+    decoded_data: Dict[str, List[Any]] = {col: [] for col in columns}
     
     with h5py.File(data_dir, 'r') as file:
         # Iterate over columns and decode categories

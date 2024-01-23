@@ -8,6 +8,9 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from numba import njit
 
+from typing import Any
+
+
 def generate_anndata_object_1(
     data_size: int = 5000, 
     num_features: int = 36000, 
@@ -51,13 +54,23 @@ def generate_anndata_object_1(
 
     # Function to fill a batch of the sparse matrix using numba
     @njit(parallel=True)
-    def fill_batch_numba(indices: np.ndarray, col_indices: np.ndarray, row_indices: np.ndarray, values: np.ndarray, X: np.ndarray) -> None:
+    def fill_batch_numba(
+        indices: np.ndarray[int], # type: ignore
+        col_indices: np.ndarray[int], # type: ignore
+        row_indices: np.ndarray[int], # type: ignore
+        values: np.ndarray[float], # type: ignore
+        X: np.ndarray[float] # type: ignore
+    ) -> None:
         for i in range(indices.shape[0]):
             for j in range(col_indices.shape[1]):
                 X[indices[i], col_indices[i, j]] += values[i]
 
     # Function to fill a batch of the sparse matrix
-    def fill_batch(start: int, end: int, X: np.ndarray) -> None:
+    def fill_batch(
+        start: int, 
+        end: int, 
+        X: np.ndarray[float] # type: ignore
+    ) -> None:
         indices = np.random.choice(data_size, size=batch_size, replace=True)
         col_indices = np.tile(np.arange(start, end), (indices.shape[0], 1))
         row_indices = np.repeat(indices, end - start)
