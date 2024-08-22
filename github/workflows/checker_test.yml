@@ -1,5 +1,5 @@
 # name of the workflow
-name: scarftools tests
+name: h5ld tests
 
 # when the workflow should be used
 on:
@@ -23,7 +23,7 @@ jobs:
         # Specify the stratergy to take        
         stratergy:
             matrix:
-                python-version: [3.6, 3.8]
+                python-version: [3.6, 3.8, 3.9, 3.10]
         # Specify the environment to use         
         env:
             MODE: "dev"
