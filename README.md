@@ -1,8 +1,8 @@
 # h5ld
+[![build-test](https://img.shields.io/github/actions/workflow/status/arose20/H5py_anndata_checker/tests/checker_test.yml?branch=main&label=build-test&logo=github&style=plastic)](https://github.com/arose20/H5py_anndata_checker/actions)
+[![python](https://img.shields.io/badge/python-3.9-3776AB?style=plastic&logo=python&logoColor=white)](https://python.org)
+[![jupyter](https://img.shields.io/badge/Works%20with-Jupyter-orange?style=plastic&logo=Jupyter)](https://jupyter.org/)
 
-[![python-tests](https://github.com/arose20/H5py_anndata_checker/github/workflows/checker_test.yml/badge.svg)](https://github.com/arose20/H5py_anndata_checker/github/workflows/checker_test.yml)
-[![python](https://img.shields.io/badge/python-3.9-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![jupyter](https://img.shields.io/badge/Wokrs%20with-Jupyter-orange?style=for-the-badge&logo=Jupyter)](https://jupyter.org/)
 
 
 Python tool to investigate H5DF files of single cell data and load in only the subset of interest into an anndata object
