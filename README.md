@@ -8,7 +8,8 @@
 Python tool to investigate H5DF files of single cell data and load in only the subset of interest into an anndata object
 ***
 
-[simple schematic to show workflow design]
+![https://github.com/ar32/H5py_anndata_checker/resources/Workflow.gif](https://github.com/arose20/H5py_anndata_checker/blob/main/resources/Workflow.gif)
+
 
 ***
 ## About
