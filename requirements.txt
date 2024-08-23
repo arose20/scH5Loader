@@ -4,3 +4,4 @@ anndata
 h5py
 scipy
 tqdm
+numba

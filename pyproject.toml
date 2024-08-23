@@ -3,9 +3,9 @@ requires = ["setuptools>=42.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-addopts = "--cov=h5ld"
+addopts = "--cov=h5ld --cov-report=term-missing --cov-report=html"
 testpaths = [
-    "tests",
+    "tests"
 ]
 
 [tool.mypy]
