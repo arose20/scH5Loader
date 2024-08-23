@@ -4,10 +4,8 @@ name: Github_tests
 # when the workflow should be used
 on:
     # specify only to run on pull requests
-    pull_request:
-        # specifiy branches this should affect
-        branches:
-            - main
+    - push
+    - pull_request
 
 # Outline the jobs to be performed within this workflow
 jobs:
