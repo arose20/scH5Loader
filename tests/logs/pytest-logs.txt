@@ -2,5 +2,3 @@ DEBUG    h5py._conv:__init__.py:47 Creating converter from 7 to 5
 DEBUG    h5py._conv:__init__.py:47 Creating converter from 5 to 7
 DEBUG    h5py._conv:__init__.py:47 Creating converter from 7 to 5
 DEBUG    h5py._conv:__init__.py:47 Creating converter from 5 to 7
-INFO     numexpr.utils:utils.py:147 Note: NumExpr detected 60 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
-INFO     numexpr.utils:utils.py:159 NumExpr defaulting to 8 threads.

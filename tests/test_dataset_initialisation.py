@@ -1,35 +1,23 @@
 import pytest
-
-import os, sys
-
-from typing import Dict, Any, List, Optional
-
+import cProfile
+import pstats
+import io
+import os
+import sys
 import logging
 import anndata
 import pandas as pd
+from typing import Dict, Any, List, Optional
+from h5ld import generate_anndata_object_1
 
-
-#sys.path.insert(0, "/home.jovyan/mount_farm/repos/H5py_anndata_checker/src")
-# better way to perform this?
 sys.path.append('../')
-#import src as h5py_custom_utils
-
-import src
-
-
-
-
-#from src.exploration import generate_summary_report, generate_anndata_report
-#from src.loading import create_obs_subset, check_values_for_key, check_input_dictionary, grab_row_values, create_anndata_subset
-
 
 # Test and create setup for testing
 
 @pytest.fixture
-def establish_test_data_dir_xpass():
-    
-    data_dir = "./dummy_data/data1.h5ad"
-    
+def establish_test_data_dir_xpass(data_dir: str):
+    """Set up the testing environment by ensuring the test data directory is ready."""
+
     if os.path.exists(data_dir):
         # If the file exists, delete the file
         os.remove(data_dir)
@@ -40,47 +28,13 @@ def establish_test_data_dir_xpass():
     return str(data_dir)
     
 
-def create_anndata_h5ad_test_file_xpass(self):
-
-    adata : anndata.AnnData = generate_anndata_object_1()
+def create_anndata_h5ad_test_file_xpass(self, data_dir: str):
+    """Create a test AnnData object and save it to an H5AD file."""
+    
+    adata: anndata.AnnData = generate_anndata_object_1()
     
     assert isinstance(adata, anndata.AnnData)
-    assert adata_result.shape == (5000, 36000)
+    assert adata.shape == (5000, 36000)
     
     adata.write(data_dir)
-    logging.info(f"Dummy data generated successfully")
-
-        
-    
-def create_input_dictionary_1(
-    data_dir : str = data_dir,
-    ):
-    
-    test_input_settings = {
-    'data_dir' : data_dir,
-    'filter_column_obs' : 'anno_LVL2',
-    'filter_values_obs' : ['macrophage', 'erythroid'],
-    'additional_cols_keep_obs' : ['anno_LVL1', 'donor', 'biological_unit'],
-    'filter_column_var' : [],
-    
-    'filter_layers' : [],
-    'filter_obsm' : [],
-    'filter_obsp' : [],
-    'filter_varm' : [],
-    'filter_varp' : [],
-    'filter_uns' : [],
-    
-    'keep_layers' : False,
-    'keep_obsm' : False,
-    'keep_obsp' : False,
-    'keep_varm' : False,
-    'keep_varp' : False,
-    'keep_uns' : False,
-    }
-
-    return test_input_settings
-
-
-
-
-
+    logging.info(f"Dummy data generated successfully at {data_dir}")
