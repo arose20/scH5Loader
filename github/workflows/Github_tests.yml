@@ -1,5 +1,5 @@
 # name of the workflow
-name: h5ld tests
+name: Github_tests
 
 # when the workflow should be used
 on:
@@ -23,15 +23,13 @@ jobs:
         # Specify the stratergy to take        
         stratergy:
             matrix:
-                python-version: [3.6, 3.8, 3.9, 3.10]
-        # Specify the environment to use         
-        env:
-            MODE: "dev"
+                python-version: [3.8, 3.9, 3.10]
+                
         # Outpline the steps which the job will perform    
         steps:
             - uses: actions/checkout@v3
             
-            - name: Set up Python
+            - name: Set up Python ${{matrix.python-version}}
                 uses: actions/setup-python@v4
                 with:
                     python-version: ${{matrix.python-version}}
@@ -39,7 +37,7 @@ jobs:
             - name: Install dependencies
                 run: |
                     python -m pip install --upgrade pip
-                    pip install -r ../requiremnets.txt
+                    pip install --upgrade tox setuptools wheel tox-gh-actions
             
-            - name: Test Code
-                run: python ./main_test.py
+            - name: Test with tox
+                run: tox
