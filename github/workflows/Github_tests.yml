@@ -3,7 +3,7 @@ name: Github_tests
 
 # when the workflow should be used
 on:
-    # specify only to run on pull requests
+    # specify to run on pushes and pull requests
     - push
     - pull_request
 
@@ -11,26 +11,23 @@ on:
 jobs:
     # This job is only going to run a single job called test
     test:
-        # Specify the os system(s) to run the job on
-        runs-on: [ubuntu-20.04]
-        # Sepcify default parameters
-        defaults:
-            # Specify where this code should run from
-            run:
-                working-directory: ./src/
-        # Specify the stratergy to take        
-        stratergy:
+        # Specify the OS system(s) to run the job on
+        runs-on: ubuntu-20.04
+        
+        # Specify the strategy to use        
+        strategy:
             matrix:
                 python-version: [3.8, 3.9, 3.10]
                 
-        # Outpline the steps which the job will perform    
+        # Outline the steps which the job will perform    
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout code
+                uses: actions/checkout@v3
             
-            - name: Set up Python ${{matrix.python-version}}
+            - name: Set up Python ${{ matrix.python-version }}
                 uses: actions/setup-python@v4
                 with:
-                    python-version: ${{matrix.python-version}}
+                    python-version: ${{ matrix.python-version }}
                     
             - name: Install dependencies
                 run: |
