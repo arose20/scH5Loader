@@ -1,5 +1,5 @@
 # h5ld
-![Github_tests](https://img.shields.io/github/workflow/status/arose20/H5py_anndata_checker/Github_tests?style=plastic)
+![Github_tests](https://github.com/arose20/H5py_anndata_checker/actions/workflows/Github_tests.yml/badge.svg)
 [![python](https://img.shields.io/badge/python-3.9-3776AB?style=plastic&logo=python&logoColor=white)](https://python.org)
 [![jupyter](https://img.shields.io/badge/Works%20with-Jupyter-orange?style=plastic&logo=Jupyter)](https://jupyter.org/)
 
