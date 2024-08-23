@@ -1,18 +1,21 @@
 import numpy as np
 import pandas as pd
+from scipy import sparse
 from scipy.sparse import lil_matrix
 import anndata
 from concurrent.futures import ThreadPoolExecutor
 from numba import njit
+import warnings
+
+warnings.filterwarnings("ignore")
+# Set random seed for reproducibility
+np.random.seed(42)
 
 
 def generate_anndata_object_1(
     data_size: int = 5000, num_features: int = 36000, batch_size: int = 1000
 ) -> anndata.AnnData:
-    # Set defined random seed for reproducibility
-    np.random.seed(42)
-
-    # Create metadata column values using vectorized operations
+    # Create column values using vectorized operations
     anno_LVL2_values = np.random.choice(
         [
             "macrophage",
@@ -37,6 +40,10 @@ def generate_anndata_object_1(
         ]
     )
 
+    # New layers with preallocated memory
+    layer1_values = np.random.randn(data_size, num_features).astype(np.float32)
+    layer2_values = np.random.randn(data_size, num_features).astype(np.float32)
+
     study_values = np.full(data_size, "Test_study")
 
     biological_unit_values = np.random.choice(
@@ -50,10 +57,6 @@ def generate_anndata_object_1(
         replace=True,
         p=[0.2, 0.2, 0.2, 0.2, 0.2],
     )
-
-    # Generate new layers with preallocated memory
-    layer1_values = np.random.randn(data_size, num_features).astype(np.float32)
-    layer2_values = np.random.randn(data_size, num_features).astype(np.float32)
 
     # Create the AnnData object without preallocating memory
     adata = anndata.AnnData(
@@ -75,19 +78,13 @@ def generate_anndata_object_1(
 
     # Function to fill a batch of the sparse matrix using numba
     @njit(parallel=True)
-    def fill_batch_numba(
-        indices: np.ndarray[int],  # type: ignore
-        col_indices: np.ndarray[int],  # type: ignore
-        row_indices: np.ndarray[int],  # type: ignore
-        values: np.ndarray[float],  # type: ignore
-        X: np.ndarray[float],  # type: ignore
-    ) -> None:
+    def fill_batch_numba(indices, col_indices, row_indices, values, X):
         for i in range(indices.shape[0]):
             for j in range(col_indices.shape[1]):
                 X[indices[i], col_indices[i, j]] += values[i]
 
     # Function to fill a batch of the sparse matrix
-    def fill_batch(start: int, end: int, X: np.ndarray[float]) -> None:  # type: ignore
+    def fill_batch(start, end, X):
         indices = np.random.choice(data_size, size=batch_size, replace=True)
         col_indices = np.tile(np.arange(start, end), (indices.shape[0], 1))
         row_indices = np.repeat(indices, end - start)
@@ -108,5 +105,20 @@ def generate_anndata_object_1(
 
     # Apply the mask to the sparse matrix data
     adata.X.data = adata.X.data * mask
+
+    # Make layer2 a csr matrix
+    adata.layers["layer2"] = sparse.csr_matrix(adata.layers["layer2"])
+
+    # Make var columns for testing
+    adata.var["high_var"] = np.random.choice(
+        ["yes", "no"], size=len(adata.var), p=[0.6, 0.4]
+    )
+    adata.var["hgnc"] = "template"
+
+    # update index in obs for unique string
+    adata.obs.index = "check_index_" + adata.obs.index
+
+    # update index in var for unique string
+    adata.var.index = "check_var_" + adata.var.index
 
     return adata

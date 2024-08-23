@@ -4,6 +4,7 @@ anndata
 h5py
 scipy
 tqdm
+numba
 
 [testing]
 pytest>=6.0

@@ -3,7 +3,7 @@ Name: h5ld
 Version: 0.1.0
 Summary: 'investigate h5ad contents and load in subset of the original data'
 Author: 'Antony Rose'
-Author-email: 'antonyrose17@gmail.com'
+Author-email: 'antonyrose17@gmail.ac.uk'
 Requires-Python: >=3.6
 Requires-Dist: numpy
 Requires-Dist: pandas
@@ -11,6 +11,7 @@ Requires-Dist: anndata
 Requires-Dist: h5py
 Requires-Dist: scipy
 Requires-Dist: tqdm
+Requires-Dist: numba
 Provides-Extra: testing
 Requires-Dist: pytest>=6.0; extra == "testing"
 Requires-Dist: pytest-cov>=2.0; extra == "testing"
