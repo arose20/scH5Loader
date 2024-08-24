@@ -12,8 +12,10 @@ h5ld
    :target: https://jupyter.org/
    :alt: jupyter
 
-Python tool to investigate H5DF files of single cell data and load in only the subset of interest into an anndata object
-*********************************************************************************
+Python tool to investigate H5DF files of single cell data and load in  
+only the subset of interest into an anndata object  
+********************************************************************************
+
 
 .. image:: https://github.com/arose20/H5py_anndata_checker/blob/main/resources/Workflow.gif
    :alt: Workflow
