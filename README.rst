@@ -14,7 +14,6 @@ h5ld
 
 Python tool to investigate H5DF files of single cell data and load in  
 only the subset of interest into an anndata object  
-********************************************************************************
 
 
 .. image:: https://github.com/arose20/H5py_anndata_checker/blob/main/resources/Workflow.gif
@@ -67,6 +66,12 @@ If you have a dataset of single cell data, you can:
 
 Installation
 ============
+To install through pypi, run the command below (recommended in a virtual environment such as venv or conda):
+
+.. code-block:: bash
+
+   pip install h5ld
+
 
 To install directly from GitHub, run the command below (recommended in a virtual environment such as venv or conda):
 
