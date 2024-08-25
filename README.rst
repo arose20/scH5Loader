@@ -1,7 +1,7 @@
 scH5Loader
 ==========
 
-.. image:: https://github.com/arose20/H5py_anndata_checker/actions/workflows/Github_tests.yml/badge.svg
+.. image:: https://github.com/arose20/scH5Loader/actions/workflows/Github_tests.yml/badge.svg
    :alt: Github_tests
 
 .. image:: https://img.shields.io/badge/python-3.9-3776AB?style=plastic&logo=python&logoColor=white
@@ -16,7 +16,7 @@ Python tool to investigate H5DF files of single cell data and load in
 only the subset of interest into an anndata object  
 
 
-.. image:: https://github.com/arose20/H5py_anndata_checker/blob/main/resources/Workflow.gif
+.. image:: https://github.com/arose20/scH5Loader/blob/main/resources/Workflow.gif
    :alt: Workflow
 
 About
