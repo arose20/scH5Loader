@@ -8,7 +8,7 @@ import logging
 import anndata
 import pandas as pd
 from typing import Dict, Any, List, Optional
-from h5ld import generate_anndata_object_1
+from scH5Loader import generate_anndata_object_1
 
 sys.path.append('../')
 

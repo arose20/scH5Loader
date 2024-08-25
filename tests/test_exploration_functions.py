@@ -14,7 +14,7 @@ import pandas as pd
 # better way to perform this?
 sys.path.append('../')
 
-from h5ld import *
+from scH5Loader import *
 
 # Set Logging
 logging.basicConfig(level=logging.BASIC_FORMAT)

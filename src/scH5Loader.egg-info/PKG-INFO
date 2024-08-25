@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: h5ld
+Name: scH5Loader
 Version: 0.1.0
 Summary: 'investigate h5ad contents and load in subset of the original data'
 Author: 'Antony Rose'

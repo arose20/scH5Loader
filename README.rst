@@ -1,5 +1,5 @@
-h5ld
-====
+scH5Loader
+==========
 
 .. image:: https://github.com/arose20/H5py_anndata_checker/actions/workflows/Github_tests.yml/badge.svg
    :alt: Github_tests
@@ -70,21 +70,21 @@ To install through pypi, run the command below (recommended in a virtual environ
 
 .. code-block:: bash
 
-   pip install h5ld
+   pip install scH5Loader
 
 
 To install directly from GitHub, run the command below (recommended in a virtual environment such as venv or conda):
 
 .. code-block:: bash
 
-   pip install git+https://github.com/arose20/H5py_anndata_checker.git
+   pip install git+https://github.com/arose20/scH5Loader.git
 
 To clone and install:
 
 .. code-block:: bash
 
-   git clone git+https://github.com/arose20/H5py_anndata_checker.git
-   cd ./H5py_anndata_checker
+   git clone git+https://github.com/arose20/scH5Loader.git
+   cd ./scH5Loader
    pip install -e .
 
 To install through `requirements.txt`:
