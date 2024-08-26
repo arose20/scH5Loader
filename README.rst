@@ -3,14 +3,24 @@ scH5Loader
 
 .. image:: https://github.com/arose20/scH5Loader/actions/workflows/Github_tests.yml/badge.svg
    :alt: Github_tests
-
+   :target: https://github.com/arose20/scH5Loader/actions/workflows/Github_tests.yml
+.. image:: https://img.shields.io/badge/version-0.1.0-blue?logo=githubactions&logoColor=white
+   :alt: release version
+   :target: https://github.com/arose20/scH5Loader
 .. image:: https://img.shields.io/badge/python-3.9-3776AB?style=plastic&logo=python&logoColor=white
-   :target: https://python.org
    :alt: python
-
+   :target: https://python.org
+.. image:: https://img.shields.io/badge/PyPI-0.1.0-3775A9?logo=pypi&logoColor=white
+   :alt: PyPI version
+   :target: https://pypi.org/project/scH5Loader/
 .. image:: https://img.shields.io/badge/Works%20with-Jupyter-orange?style=plastic&logo=Jupyter
-   :target: https://jupyter.org/
    :alt: jupyter
+   :target: https://jupyter.org/
+
+
+
+
+
 
 Python tool to investigate H5DF files of single cell data and load in  
 only the subset of interest into an anndata object  
