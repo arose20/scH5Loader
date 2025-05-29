@@ -1,0 +1,5 @@
+DEBUG    h5py._conv:__init__.py:47 Creating converter from 7 to 5
+DEBUG    h5py._conv:__init__.py:47 Creating converter from 5 to 7
+DEBUG    h5py._conv:__init__.py:47 Creating converter from 7 to 5
+DEBUG    h5py._conv:__init__.py:47 Creating converter from 5 to 7
+DEBUG    h5py._conv:dataset.py:841 Creating converter from 3 to 5
